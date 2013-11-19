@@ -15,72 +15,96 @@ int isOperator(char c) {
 
 int isExpression(char* str) {
 	int position = 0;
-	int number_count = 0;
 
-	while (position < strlen(str)) {
-		if (str[position] == ' ') {
-			if (isOperator(str[position - 1]) != 0)
-				number_count++;
-		} else if (isOperator(str[position]) == 1) {
-			if (number_count >= 2) 
-				return position;
-			else
-				number_count = 0;
-		} //else do nothing
-
+	while (position < strlen(str) - 1) {
+		if (isOperator(str[position]) == 1 && 
+					(position == strlen(str) - 2 || str[position + 1] == ' '))
+			return position;
 		position++;
 	}
 
 	return 0;
 }
 
-int getFirstNumber(char* str, int position) {
+// int getFirstNumber(char* str, int position) {
 
-	int iter = position - 2;
-	while(str[iter] != ' ')
-		iter--;
+// 	int iter = position - 2;
+// 	while(str[iter] != ' ')
+// 		iter--;
 
-	char buffer[position - iter - 3];
-	strncpy(buffer, str+iter+1, position - 2);
+// 	char buffer[position - iter - 3];
+// 	strncpy(buffer, str+iter+1, position - 2);
 
-	return atoi(buffer);
+// 	return atoi(buffer);
+// }
+
+// int getSecondNumber(char* str, int position) {
+
+// 	int iter = position - 2;
+// 	while(str[iter] != ' ')
+// 		iter--;
+// 	iter--;
+// 	int end = iter;
+// 	while(str[iter] != ' ')
+// 		iter --;
+
+// 	char buffer[end - iter - 1];
+// 	strncpy(buffer, str+iter+1, end);
+
+// 	return atoi(buffer);
+// }
+
+int getSecondEndPosition(char* str, int intOperator) {
+
+	return intOperator - 2;
 }
 
-int getSecondNumber(char* str, int position) {
+int getFirstEndPosition(char* str, int intOperator) {
 
-	int iter = position - 2;
-	while(str[iter] != ' ')
+	int iter = intOperator - 2;
+	while (str[iter] != ' ')
 		iter--;
+	return iter - 1;
+}
+
+int getFirstStartPosition(char* str, int intOperator) {
+
+	int iter = intOperator - 2;
+	while (str[iter] != ' ')
+		iter--;
+
 	iter--;
-	int end = iter;
-	while(str[iter] != ' ')
-		iter --;
+	while (str[iter] != ' ' && iter > 0)
+		iter--;
 
-	char buffer[end - iter - 1];
-	strncpy(buffer, str+iter+1, end);
+	if (str[iter] == ' ')
+		iter++;
 
-	return atoi(buffer);
+	return iter;
 }
 
 int getNumber(char* str, int position) {
 	
+	// if (isOperator(str[iter]) == 1)
+	// 	iter--;
+	// if (str[iter] == ' ')
+	// 	iter--;
+	
 	int iter = position;
-	if (isOperator(str[iter]) == 1)
-		iter--;
-	if (str[iter] == ' ')
-		iter--;
-		
-	while(str[iter] != ' ' && iter > 1)
+
+	while(str[iter] != ' ' && iter > 0)
 		iter--;
 	
 	if (str[iter] == ' ')
 		iter++;
 
 	char buffer[position - iter + 2];
-	strncpy(buffer, str+iter, position);
+	if (iter == 0)
+		strncpy(buffer, str, position - iter + 1);
+	else
+		strncpy(buffer, str+iter, position - iter + 1);
 
-	return atoi(buffer);
-	
+	return atoi(buffer);	
 }
 
 int compute(int n1, int n2, char c) {

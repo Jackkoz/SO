@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
     int     fd[2];                 /* file descriptors returned by pipe        */
     int     error;                 /* return value from dup2 call              */
 
-	char buffer[50], buffer2[50];
+    char file_buffer[PIPE_SIZE];
 
 	if (argc != 2) {
 		fprintf (stderr, "Usage: %s max_processes, input, output\n", argv[0]);
@@ -80,50 +80,51 @@ int main(int argc, char* argv[]) {
             execl("exec", "./exec", NULL);
     }
 
-    sprintf(buffer, "%d", getpid());
-    write(1, buffer, strlen(buffer) + 1);
+    sprintf(file_buffer, "%d", getpid());
+    write(1, file_buffer, strlen(file_buffer) + 1);
     
-    read(0, buffer, 50);
-    sprintf(buffer2, "I'm #%d and got msg from #%s\n", getpid(), buffer);
-    write(2, buffer2, strlen(buffer2) + 1);
+    read(0, file_buffer, PIPE_SIZE);
+    fprintf(stderr, "I'm the manager: #%d and got msg from #%s\n", getpid(), file_buffer);
 
-    int input_file;
-    input_file = open("in.in", O_RDONLY);
+    FILE* input;
+    input = fopen("in2.in", "r");
 
     int expressions = 0;
-    read(input_file, buffer, 50);
-    expressions = atoi(buffer);
+    fgets(file_buffer, PIPE_SIZE, input);
+    expressions = atoi(file_buffer);
 
-    sprintf(buffer, "Number of expressions: %d\n", expressions);
-
-    write(2, buffer, strlen(buffer) + 1);
+    fprintf(stderr, "Number of expressions: %d\n", expressions);
     
     int processed_expressions = 0;
     
     while (processed_expressions < expressions) {
 		
-		read(input_file, buffer, 50);
-		while (isExpression(buffer) > 0) {
-			write(1, buffer, strlen(buffer) + 1);
-			read(0, buffer, 50);
+        fgets(file_buffer, PIPE_SIZE, input);
+        fprintf(stderr, "MANAGER WCZYTAŁ Z PLIKU: %s\n", file_buffer);
+        int condition = isExpression(file_buffer);
+		// while (isExpression(file_buffer) > 0) {
+        while (condition > 0) {
+            fprintf(stderr, "Wrzucam na pierścień: %s\n", file_buffer);
+            write(1, file_buffer, strlen(file_buffer));
+            read(0, file_buffer, PIPE_SIZE);
+            condition = isExpression(file_buffer);
 		}
-		write(2, buffer, strlen(buffer) + 1);
+        fprintf(stderr, "KONIEC OBLICZEŃ\n");
+        fprintf(stderr, "%s\n", file_buffer);
 		
 		processed_expressions++;
 	}
 	
-	write(1, kill_message, strlen(kill_message) + 1);
-	
+    write(1, kill_message, strlen(kill_message) + 1);
 	process_count = 0;	
 	while (process_count < max_processes) {
-		read(0, buffer, 50);
 		wait(0);
 		process_count++;
 	}
 	
-	write(2, "END\n", strlen("END\n") + 1);
+    fprintf(stderr, "END\n");
 	
-	close(input_file);
+	fclose(input);
 
 	return 0;
 	exit(0);

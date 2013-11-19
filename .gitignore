@@ -1,3 +1,5 @@
+a.out
+exec
 # Object files
 *.o
 *.ko
