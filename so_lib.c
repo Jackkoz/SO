@@ -62,6 +62,27 @@ int getSecondNumber(char* str, int position) {
 	return atoi(buffer);
 }
 
+int getNumber(char* str, int position) {
+	
+	int iter = position;
+	if (isOperator(str[iter]) == 1)
+		iter--;
+	if (str[iter] == ' ')
+		iter--;
+		
+	while(str[iter] != ' ' && iter > 1)
+		iter--;
+	
+	if (str[iter] == ' ')
+		iter++;
+
+	char buffer[position - iter + 2];
+	strncpy(buffer, str+iter, position);
+
+	return atoi(buffer);
+	
+}
+
 int compute(int n1, int n2, char c) {
 
 	switch (c) {
@@ -79,5 +100,3 @@ int compute(int n1, int n2, char c) {
 	}
 
 }
-
-int main() {return 0;}

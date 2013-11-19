@@ -5,6 +5,7 @@
 #include <errno.h>
 #include "so_lib.h"
 #include <fcntl.h> //open
+#include <sys/wait.h>
 
 int main(int argc, char* argv[]) {
 
@@ -86,17 +87,46 @@ int main(int argc, char* argv[]) {
     sprintf(buffer2, "I'm #%d and got msg from #%s\n", getpid(), buffer);
     write(2, buffer2, strlen(buffer2) + 1);
 
-    int file_number;
-    file_number = open("in.in", 1, 3);
+    int input_file;
+    input_file = open("in.in", O_RDONLY);
 
     int expressions = 0;
-    read(file_number, buffer, 50);
+    read(input_file, buffer, 50);
     expressions = atoi(buffer);
 
     sprintf(buffer, "Number of expressions: %d\n", expressions);
 
     write(2, buffer, strlen(buffer) + 1);
+    
+    int processed_expressions = 0;
+    
+    while (processed_expressions < expressions) {
+		
+		read(input_file, buffer, 50);
+		while (isExpression(buffer) > 0) {
+			write(1, buffer, strlen(buffer) + 1);
+			read(0, buffer, 50);
+		}
+		write(2, buffer, strlen(buffer) + 1);
+		
+		processed_expressions++;
+	}
+	
+	write(1, kill_message, strlen(kill_message) + 1);
+	
+	process_count = 0;	
+	while (process_count < max_processes) {
+		read(0, buffer, 50);
+		wait();
+		process_count++;
+	}
+	
+	write(2, "END\n", strlen("END\n") + 1);
+	
+	close(input_file);
 
 	return 0;
 	exit(0);
 }
+
+//getline i printf+flush

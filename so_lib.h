@@ -1,6 +1,8 @@
 #ifndef SO_LIB_H
 #define SO_LIB_H
 
+const char kill_message[4] = "###";
+
 int isOperator(char c);
 
 int isExpression(char* str);

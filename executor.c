@@ -3,6 +3,7 @@
 #include <stdlib.h> //exit
 #include <string.h> //strlen
 #include "so_lib.h"
+#include <sys/wait.h>
 
 int main() {
 
@@ -18,6 +19,22 @@ int main() {
 	sprintf(buffer, "%d", getpid());
     write(1, buffer, strlen(buffer) + 1);
     
-	return 0;
-	exit(0);
+    while (true) {
+        read(0, buffer, 50);
+        if (strcmp(buffer, kill_message) == 0) {
+            write(2, "GOT KILLMSG\n", strlen("GOT KILLMSG\n") + 1);
+            write(1, kill_message, strlen(kill_message) + 1);
+            return 0;
+            exit(0);
+        }
+        
+        if (isExpression(buffer) == 0)
+            write(1, buffer, strlen(buffer) + 1);
+        else {
+            
+        }
+    }
+    
+	// return 0;
+	// exit(0);
 }
