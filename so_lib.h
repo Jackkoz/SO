@@ -11,4 +11,6 @@ int getFirstNumber(char* str, int position);
 
 int getSecondNumber(char* str, int position);
 
+int getNumber(char* str, int position);
+
 #endif
