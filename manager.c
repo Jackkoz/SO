@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
 	process_count = 0;	
 	while (process_count < max_processes) {
 		read(0, buffer, 50);
-		wait();
+		wait(0);
 		process_count++;
 	}
 	
