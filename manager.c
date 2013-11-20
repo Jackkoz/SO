@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
     int     fd[2];                 /* file descriptors returned by pipe        */
     int     error;                 /* return value from dup2 call              */
 
-    char file_buffer[PIPE_SIZE];
+    char file_buffer[PIPE_SIZE], temp_buffer[PIPE_SIZE];
 
     if (argc != 4) {
         fprintf (stderr, "Usage: %s max_processes, input_path, output_path\n", argv[0]);
@@ -80,13 +80,17 @@ int main(int argc, char* argv[]) {
             execl("exec", "./exec", NULL);
     }
 
-    FILE* input = fopen(argv[2], "r");
+    char input_path[strlen(argv[2]) + 5];
+    sprintf(input_path, "DATA/%s", argv[2]);
+    FILE* input = fopen(input_path, "r");
     if (input == NULL) {
         fprintf(stderr, "Could not open input file: %s\n", strerror(errno));
         exit(1);
     }
 
-    FILE* output = fopen(argv[3], "w");
+    char output_path[strlen(argv[3]) + 5];
+    sprintf(output_path, "DATA/%s", argv[3]);
+    FILE* output = fopen(output_path, "w");
     if (output == NULL) {
         fprintf(stderr, "Could not create output file: %s\n", strerror(errno));
         exit(1);
@@ -99,13 +103,14 @@ int main(int argc, char* argv[]) {
     expressions = atoi(file_buffer);
     
     while (processed_expressions < expressions) {
-        fgets(file_buffer, PIPE_SIZE, input);
+        fgets(temp_buffer, PIPE_SIZE, input);
+        sprintf(file_buffer, "%d: %s", processed_expressions + 1, temp_buffer);
         while (isExpression(file_buffer) > 0) { //The expression is still in need of computing
             write(1, file_buffer, strlen(file_buffer));
             read(0, file_buffer, PIPE_SIZE);
         }
         processed_expressions++;
-        fprintf(output, "%d: %s", processed_expressions, file_buffer);
+        fprintf(output, "%s", file_buffer);
     }
 
     //Starting the chain of messages leading to killing all children
