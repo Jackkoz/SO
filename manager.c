@@ -105,7 +105,7 @@ int main(int arguments_number, char* arguments[]) {
 
     int i = 0;
     int line_number;
-    
+
     while (i < expressions && i < max_processes) {
         i++;
         fgets(temp_buffer, PIPE_SIZE, input);
@@ -126,7 +126,7 @@ int main(int arguments_number, char* arguments[]) {
             if (processed_expressions + i <= expressions) {
                 fgets(temp_buffer, PIPE_SIZE, input);
                 line_number = i + processed_expressions;
-                sprintf(file_buffer, "%d: %s", tmp, temp_buffer);
+                sprintf(file_buffer, "%d: %s", line_number, temp_buffer);
                 write_string(file_buffer);
             }
         }
