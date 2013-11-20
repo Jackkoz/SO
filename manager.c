@@ -17,8 +17,8 @@ int main(int argc, char* argv[]) {
 
     char file_buffer[PIPE_SIZE];
 
-	if (argc != 2) {
-		fprintf (stderr, "Usage: %s max_processes, input, output\n", argv[0]);
+	if (argc != 4) {
+		fprintf (stderr, "Usage: %s max_processes, input_path, output_path\n", argv[0]);
         exit(1);	
 	}
 
@@ -86,8 +86,18 @@ int main(int argc, char* argv[]) {
     // read(0, file_buffer, PIPE_SIZE);
     // fprintf(stderr, "I'm the manager: #%d and got msg from #%s\n", getpid(), file_buffer);
 
-    FILE* input;
-    input = fopen("in.in", "r");
+    FILE* input = fopen(argv[2], "r");
+    if (input == NULL) {
+        fprintf(stderr, "Could not open input file: %s\n", strerror(errno));
+        exit(1);
+    }
+
+    FILE* output = fopen(argv[3], "w");
+    if (output == NULL) {
+        fprintf(stderr, "Could not create output file: %s\n", strerror(errno));
+        exit(1);
+    }
+
 
     int expressions = 0;
     fgets(file_buffer, PIPE_SIZE, input);
@@ -104,7 +114,8 @@ int main(int argc, char* argv[]) {
 		}
 		processed_expressions++;
         //zamień na write do pliku
-        //fprintf(stderr, "%s\n", file_buffer);
+        fprintf(output, "%d: %s", processed_expressions, file_buffer);
+
 	}
 	
     write(1, kill_message, strlen(kill_message) + 1);
