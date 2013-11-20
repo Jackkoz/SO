@@ -88,5 +88,4 @@ int compute(int n1, int n2, char c) {
 			//impossible
 			return -1;
 	}
-
 }

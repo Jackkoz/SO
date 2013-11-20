@@ -80,11 +80,11 @@ int main(int argc, char* argv[]) {
             execl("exec", "./exec", NULL);
     }
 
-    sprintf(file_buffer, "%d", getpid());
-    write(1, file_buffer, strlen(file_buffer) + 1);
+    // sprintf(file_buffer, "%d", getpid());
+    // write(1, file_buffer, strlen(file_buffer) + 1);
     
-    read(0, file_buffer, PIPE_SIZE);
-    fprintf(stderr, "I'm the manager: #%d and got msg from #%s\n", getpid(), file_buffer);
+    // read(0, file_buffer, PIPE_SIZE);
+    // fprintf(stderr, "I'm the manager: #%d and got msg from #%s\n", getpid(), file_buffer);
 
     FILE* input;
     input = fopen("in.in", "r");
@@ -93,41 +93,30 @@ int main(int argc, char* argv[]) {
     fgets(file_buffer, PIPE_SIZE, input);
     expressions = atoi(file_buffer);
 
-    fprintf(stderr, "Number of expressions: %d\n", expressions);
-    
     int processed_expressions = 0;
     
     while (processed_expressions < expressions) {
 		
         fgets(file_buffer, PIPE_SIZE, input);
-        fprintf(stderr, "MANAGER WCZYTAŁ Z PLIKU: %s\n", file_buffer);
-        int condition = isExpression(file_buffer);
-		// while (isExpression(file_buffer) > 0) {
-        while (condition > 0) {
-            fprintf(stderr, "Wrzucam na pierścień: %s\n", file_buffer);
+		while (isExpression(file_buffer) > 0) {
             write(1, file_buffer, strlen(file_buffer));
             read(0, file_buffer, PIPE_SIZE);
-            condition = isExpression(file_buffer);
 		}
-        fprintf(stderr, "KONIEC OBLICZEŃ\n");
-        fprintf(stderr, "%s\n", file_buffer);
-		
 		processed_expressions++;
+        //zamień na write do pliku
+        //fprintf(stderr, "%s\n", file_buffer);
 	}
 	
     write(1, kill_message, strlen(kill_message) + 1);
 	process_count = 0;	
+    read(0, file_buffer, PIPE_SIZE);
 	while (process_count < max_processes) {
 		wait(0);
 		process_count++;
 	}
-	
-    fprintf(stderr, "END\n");
 	
 	fclose(input);
 
 	return 0;
 	exit(0);
 }
-
-//getline i printf+flush
