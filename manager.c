@@ -7,47 +7,47 @@
 #include <fcntl.h> 
 #include <sys/wait.h>
 
-int main(int argc, char* argv[]) {
+int main(int arguments_number, char* arguments[]) {
 
     int     process_count;         /* number of this process (starting with 1) */
     int     childpid;              /* indicates process should spawn another   */
     int     max_processes;         /* total number of processes in ring        */
-    int     fd[2];                 /* file descriptors returned by pipe        */
+    int     new_descriptors[2];    /* file descriptors returned by pipe        */
     int     error;                 /* return value from dup2 call              */
 
     char file_buffer[PIPE_SIZE], temp_buffer[PIPE_SIZE];
 
-    if (argc != 4) {
-        fprintf (stderr, "Usage: %s max_processes, input_path, output_path\n", argv[0]);
+    if (arguments_number != 4) {
+        fprintf (stderr, "Usage: %s max_processes, input_path, output_path\n", arguments[0]);
         exit(1);
     }
 
-    max_processes = atoi(argv[1]);
+    max_processes = atoi(arguments[1]);
 
-    /* check command line for a valid number of processes to generate */
+    /* check whether a valid number of processes to generate was specified*/
     if (max_processes <= 0) {
-        fprintf (stderr, "Max processes should be greater than 0.\n", argv[0]);
+        fprintf (stderr, "Max processes should be greater than 0.\n", arguments[0]);
         exit(1);
     }
 
-    if (pipe (fd) == -1) {
+    if (pipe (new_descriptors) == -1) {
         perror("Could not create pipe");
         exit(1);
     }
 
-    if ((dup2(fd[0], STDIN_FILENO) == -1) ||
-            (dup2(fd[1], STDOUT_FILENO) == -1)) {
+    if ((dup2(new_descriptors[0], STDIN_FILENO) == -1) ||
+            (dup2(new_descriptors[1], STDOUT_FILENO) == -1)) {
         perror("Could not dup pipes");
         exit(1);
     }
 
-    if ((close(fd[0]) == -1) || (close(fd[1]) == -1)) {
+    if ((close(new_descriptors[0]) == -1) || (close(new_descriptors[1]) == -1)) {
         perror("Could not close extra descriptors");
         exit(1);
     }
 
     for (process_count = 1; process_count <= max_processes; process_count++) {
-        if (pipe (fd) == -1) {
+        if (pipe (new_descriptors) == -1) {
             fprintf(stderr,"Could not create pipe %d: %s\n",
                     process_count, strerror(errno));
             exit(1);
@@ -60,9 +60,9 @@ int main(int argc, char* argv[]) {
         }
 
         if (childpid > 0)
-            error = dup2(fd[1], STDOUT_FILENO);
+            error = dup2(new_descriptors[1], STDOUT_FILENO);
         else
-           error = dup2(fd[0], STDIN_FILENO);
+            error = dup2(new_descriptors[0], STDIN_FILENO);
 
         if (error == -1) {
             fprintf(stderr, "Could not dup pipes for iteration %d: %s\n",
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
             exit(1);
         }
 
-        if ((close(fd[0]) == -1) || (close(fd[1]) == -1)) {
+        if ((close(new_descriptors[0]) == -1) || (close(new_descriptors[1]) == -1)) {
             fprintf(stderr, "Could not close extra descriptors %d: %s\n",
                    process_count, strerror(errno));
             exit(1);
@@ -80,23 +80,23 @@ int main(int argc, char* argv[]) {
             execl("exec", "./exec", NULL);
     }
 
-    char input_path[strlen(argv[2]) + 5];
-    sprintf(input_path, "DATA/%s", argv[2]);
+    char input_path[strlen(arguments[2]) + 5];
+    sprintf(input_path, "DATA/%s", arguments[2]);
     FILE* input = fopen(input_path, "r");
     if (input == NULL) {
         fprintf(stderr, "Could not open input file: %s\n", strerror(errno));
         exit(1);
     }
 
-    char output_path[strlen(argv[3]) + 5];
-    sprintf(output_path, "DATA/%s", argv[3]);
+    char output_path[strlen(arguments[3]) + 5];
+    sprintf(output_path, "DATA/%s", arguments[3]);
     FILE* output = fopen(output_path, "w");
     if (output == NULL) {
         fprintf(stderr, "Could not create output file: %s\n", strerror(errno));
         exit(1);
     }
 
-    int expressions = 0; //the number of expressions to be counted, stored in the first line of input
+    int expressions = 0; //The number of expressions to be counted, stored in the first line of input
     int processed_expressions = 0;
     
     fgets(file_buffer, PIPE_SIZE, input);
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
     process_count = 0;	
     read(0, file_buffer, PIPE_SIZE);
     while (process_count < max_processes) {
-        //ensure each and every has used exit
+        //Ensure each and every has used exit
         wait(0);
         process_count++;
     }
