@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
     fprintf(stderr, "I'm the manager: #%d and got msg from #%s\n", getpid(), file_buffer);
 
     FILE* input;
-    input = fopen("in2.in", "r");
+    input = fopen("in.in", "r");
 
     int expressions = 0;
     fgets(file_buffer, PIPE_SIZE, input);
