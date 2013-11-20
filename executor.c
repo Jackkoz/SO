@@ -6,14 +6,22 @@
 
 int main() {
 
-    char ring_buffer[PIPE_SIZE];
+    char ring_buffer[PIPE_SIZE], temp_buffer[PIPE_SIZE], temp[PIPE_SIZE];
+    int line_length;
 
-    while (1 == 1) {
+    while (1) {
         //Clearing buffer before reading into it to avoid leftovers
         memset(&ring_buffer[0], 0, sizeof(ring_buffer));
-        read(0, ring_buffer, PIPE_SIZE);
+        read(0, ring_buffer, 6);
+        line_length = atoi(ring_buffer);
+
+        memset(&ring_buffer[0], 0, sizeof(ring_buffer));
+        read(0, ring_buffer, line_length + 1);
+
         if (strcmp(ring_buffer, kill_message) == 0) {
             //If kill_message is read the proceed to signal next process and exit
+            sprintf(temp_buffer, "000%d", strlen(kill_message));
+            write(1, temp_buffer, 6);
             write(1, kill_message, strlen(kill_message) + 1);
             return 0;
             exit(0);
@@ -21,6 +29,13 @@ int main() {
 
         if (isExpression(ring_buffer) == 0) {
             //The expression is already counted, pass it forward
+            // write(1, itoa(strlen(ring_buffer)), strlen(itoa(strlen(ring_buffer))));
+            sprintf(temp_buffer, "%d", strlen(ring_buffer));
+            while (strlen(temp_buffer) < 5) {
+                sprintf(temp, "0%s", temp_buffer);
+                sprintf(temp_buffer, "%s", temp);
+            }
+            write(1, temp_buffer, 6);
             write(1, ring_buffer, strlen(ring_buffer) + 1);
         }
         else {
@@ -46,6 +61,13 @@ int main() {
             strncpy(sufix, ring_buffer + (intOperator + 1), strlen(ring_buffer) - intOperator);
 
             sprintf(ring_buffer, "%s%d%s", prefix, result, sufix);
+
+            sprintf(temp_buffer, "%d", strlen(ring_buffer));
+            while (strlen(temp_buffer) < 5) {
+                sprintf(temp, "0%s", temp_buffer);
+                sprintf(temp_buffer, "%s", temp);
+            }
+            write(1, temp_buffer, 6);
             write(1, ring_buffer, strlen(ring_buffer) + 1);
         }
     }

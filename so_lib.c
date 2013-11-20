@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "so_lib.h"
@@ -86,4 +87,16 @@ int compute(int n1, int n2, char c) {
             //impossible
             return -1;
     }
+}
+
+void write_string(char* str) {
+    char temp_buffer[PIPE_SIZE], temp[PIPE_SIZE];
+
+    sprintf(temp_buffer, "%d", strlen(str));
+        while (strlen(temp_buffer) < 5) {
+            sprintf(temp, "0%s", temp_buffer);
+            sprintf(temp_buffer, "%s", temp);
+        }
+    write(1, temp_buffer, 6);
+    write(1, str, strlen(str) + 1);
 }

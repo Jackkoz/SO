@@ -9,13 +9,14 @@
 
 int main(int arguments_number, char* arguments[]) {
 
-    int     process_count;         /* number of this process (starting with 1) */
-    int     childpid;              /* indicates process should spawn another   */
-    int     max_processes;         /* total number of processes in ring        */
-    int     new_descriptors[2];    /* file descriptors returned by pipe        */
-    int     error;                 /* return value from dup2 call              */
+    int process_count;         /* number of this process (starting with 1) */
+    int childpid;              /* indicates process should spawn another   */
+    int max_processes;         /* total number of processes in ring        */
+    int new_descriptors[2];    /* file descriptors returned by pipe        */
+    int error;                 /* return value from dup2 call              */
+    int line_length;
 
-    char file_buffer[PIPE_SIZE], temp_buffer[PIPE_SIZE];
+    char file_buffer[PIPE_SIZE], temp_buffer[PIPE_SIZE], temp[PIPE_SIZE];
 
     if (arguments_number != 4) {
         fprintf (stderr, "Usage: %s max_processes, input_path, output_path\n", arguments[0]);
@@ -101,22 +102,60 @@ int main(int arguments_number, char* arguments[]) {
     
     fgets(file_buffer, PIPE_SIZE, input);
     expressions = atoi(file_buffer);
-    
-    while (processed_expressions < expressions) {
+
+    int i = 0;
+    while (i < expressions && i < max_processes) {
+        i++;
         fgets(temp_buffer, PIPE_SIZE, input);
-        sprintf(file_buffer, "%d: %s", processed_expressions + 1, temp_buffer);
-        while (isExpression(file_buffer) > 0) { //The expression is still in need of computing
-            write(1, file_buffer, strlen(file_buffer));
-            read(0, file_buffer, PIPE_SIZE);
+        sprintf(file_buffer, "%d: %s", i, temp_buffer);
+        sprintf(temp_buffer, "%d", strlen(file_buffer));
+        while (strlen(temp_buffer) < 5) {
+            sprintf(temp, "0%s", temp_buffer);
+            sprintf(temp_buffer, "%s", temp);
         }
-        processed_expressions++;
-        fprintf(output, "%s", file_buffer);
+        write(1, temp_buffer, 6);
+        write(1, file_buffer, strlen(file_buffer) + 1);
+    }
+
+    while (processed_expressions < expressions) {
+        read(0, file_buffer, 6);
+        line_length = atoi(file_buffer);
+        read(0, file_buffer, line_length + 1);
+
+        if (isExpression(file_buffer) > 0) {
+            sprintf(temp_buffer, "%d", strlen(file_buffer));
+            while (strlen(temp_buffer) < 5) {
+                sprintf(temp, "0%s", temp_buffer);
+                sprintf(temp_buffer, "%s", temp);
+            }
+            write(1, temp_buffer, 6);
+            write(1, file_buffer, strlen(file_buffer) + 1);
+        } else {
+            processed_expressions++;
+            fprintf(output, "%s", file_buffer);
+            if (processed_expressions + i < expressions) {
+                fgets(temp_buffer, PIPE_SIZE, input);
+                sprintf(file_buffer, "%d: %s", i, temp_buffer);
+                sprintf(temp_buffer, "%d", strlen(file_buffer));
+                while (strlen(temp_buffer) < 5) {
+                    sprintf(temp, "0%s", temp_buffer);
+                    sprintf(temp_buffer, "%s", temp);
+                }
+                write(1, temp_buffer, 6);
+                write(1, file_buffer, strlen(file_buffer) + 1);
+            }
+        }
+
     }
 
     //Starting the chain of messages leading to killing all children
+    sprintf(temp_buffer, "000%d", strlen(kill_message)); //because kill_message is exactly 42-char long
+    write(1, temp_buffer, 6);
     write(1, kill_message, strlen(kill_message) + 1);
     process_count = 0;	
-    read(0, file_buffer, PIPE_SIZE);
+    read(0, file_buffer, 6);
+    line_length = atoi(file_buffer);
+    read(0, file_buffer, line_length + 1);
     while (process_count < max_processes) {
         //Ensure each and every has used exit
         wait(0);

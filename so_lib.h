@@ -51,4 +51,9 @@ int getNumber(char* str, int position);
 */
 int compute(int n1, int n2, char c);
 
+/**
+* Simplifies the process of writing string followed by its encoded length
+*/
+void write_string(char* str);
+
 #endif
