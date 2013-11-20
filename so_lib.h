@@ -1,7 +1,6 @@
 #ifndef SO_LIB_H
 #define SO_LIB_H
 
-// const char kill_message[4] = "###";
 const char kill_message[42] = "(>'-')> <('-'<) ^(' - ')^ <('-'<) (>'-')>";
 const size_t  PIPE_SIZE = 65536;
 

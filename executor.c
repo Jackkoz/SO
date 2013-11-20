@@ -8,13 +8,6 @@ int main() {
 
     char ring_buffer[PIPE_SIZE];
 
-    // read(0, ring_buffer, PIPE_SIZE);
-
-    // fprintf(stderr, "I'm #%d and got msg from #%s\n", getpid(), ring_buffer);
-
-    // sprintf(ring_buffer, "%d", getpid());
-    // write(1, ring_buffer, strlen(ring_buffer) + 1);
-    
     while (true) {
         //Clearing buffer before reading into it to avoid leftovers
         memset(&ring_buffer[0], 0, sizeof(ring_buffer));
@@ -39,7 +32,7 @@ int main() {
             int2 = getNumber(ring_buffer, getSecondEndPosition(ring_buffer, intOperator));
             result = compute(int1, int2, ring_buffer[intOperator]);
             //Clearing variables used to store prefix and sufix of the formula in current expression
-            char prefix[strlen(ring_buffer)], sufix[strlen(ring_buffer)]; 
+            char prefix[strlen(ring_buffer)], sufix[strlen(ring_buffer)];
             int i = 0;
             for (i; i < strlen(ring_buffer); i++) {
                 prefix[i] = '\0';
@@ -54,6 +47,6 @@ int main() {
 
             sprintf(ring_buffer, "%s%d%s", prefix, result, sufix);
             write(1, ring_buffer, strlen(ring_buffer) + 1);
-        }   
+        }
     }
 }
