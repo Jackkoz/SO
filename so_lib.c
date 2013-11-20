@@ -11,7 +11,7 @@ int isOperator(char c) {
         return 1;
     else
         return 0;
-    }
+}
 
 int isExpression(char* str) {
     int position = 0;
@@ -89,7 +89,7 @@ int compute(int n1, int n2, char c) {
     }
 }
 
-void write_string(char* str) {
+void write_string(const char* str) {
     char temp_buffer[PIPE_SIZE], temp[PIPE_SIZE];
 
     sprintf(temp_buffer, "%d", strlen(str));

@@ -104,17 +104,13 @@ int main(int arguments_number, char* arguments[]) {
     expressions = atoi(file_buffer);
 
     int i = 0;
+    int line_number;
+    
     while (i < expressions && i < max_processes) {
         i++;
         fgets(temp_buffer, PIPE_SIZE, input);
         sprintf(file_buffer, "%d: %s", i, temp_buffer);
-        sprintf(temp_buffer, "%d", strlen(file_buffer));
-        while (strlen(temp_buffer) < 5) {
-            sprintf(temp, "0%s", temp_buffer);
-            sprintf(temp_buffer, "%s", temp);
-        }
-        write(1, temp_buffer, 6);
-        write(1, file_buffer, strlen(file_buffer) + 1);
+        write_string(file_buffer);
     }
 
     while (processed_expressions < expressions) {
@@ -123,35 +119,22 @@ int main(int arguments_number, char* arguments[]) {
         read(0, file_buffer, line_length + 1);
 
         if (isExpression(file_buffer) > 0) {
-            sprintf(temp_buffer, "%d", strlen(file_buffer));
-            while (strlen(temp_buffer) < 5) {
-                sprintf(temp, "0%s", temp_buffer);
-                sprintf(temp_buffer, "%s", temp);
-            }
-            write(1, temp_buffer, 6);
-            write(1, file_buffer, strlen(file_buffer) + 1);
+            write_string(file_buffer);
         } else {
             processed_expressions++;
             fprintf(output, "%s", file_buffer);
-            if (processed_expressions + i < expressions) {
+            if (processed_expressions + i <= expressions) {
                 fgets(temp_buffer, PIPE_SIZE, input);
-                sprintf(file_buffer, "%d: %s", i, temp_buffer);
-                sprintf(temp_buffer, "%d", strlen(file_buffer));
-                while (strlen(temp_buffer) < 5) {
-                    sprintf(temp, "0%s", temp_buffer);
-                    sprintf(temp_buffer, "%s", temp);
-                }
-                write(1, temp_buffer, 6);
-                write(1, file_buffer, strlen(file_buffer) + 1);
+                line_number = i + processed_expressions;
+                sprintf(file_buffer, "%d: %s", tmp, temp_buffer);
+                write_string(file_buffer);
             }
         }
 
     }
 
     //Starting the chain of messages leading to killing all children
-    sprintf(temp_buffer, "000%d", strlen(kill_message)); //because kill_message is exactly 42-char long
-    write(1, temp_buffer, 6);
-    write(1, kill_message, strlen(kill_message) + 1);
+    write_string(kill_message);
     process_count = 0;	
     read(0, file_buffer, 6);
     line_length = atoi(file_buffer);

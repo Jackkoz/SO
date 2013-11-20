@@ -52,8 +52,9 @@ int getNumber(char* str, int position);
 int compute(int n1, int n2, char c);
 
 /**
-* Simplifies the process of writing string followed by its encoded length
+* Simplifies the process of writing string preceeded by its encoded length
+* This way we can be sure how many characters have to be read from buffer
 */
-void write_string(char* str);
+void write_string(const char* str);
 
 #endif
