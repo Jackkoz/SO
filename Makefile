@@ -1,4 +1,4 @@
-CPP = g++
+CPP = gcc
 FLAGS = 
 
 all: clean exec manager.o

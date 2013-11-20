@@ -1,8 +1,8 @@
 #ifndef SO_LIB_H
 #define SO_LIB_H
 
-const char kill_message[42] = "(>'-')> <('-'<) ^(' - ')^ <('-'<) (>'-')>";
-const size_t  PIPE_SIZE = 65536;
+extern const char kill_message[42];
+extern const size_t  PIPE_SIZE;
 
 /**
 * Returns 1 if c is an operator or else 0

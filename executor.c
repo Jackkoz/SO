@@ -8,7 +8,7 @@ int main() {
 
     char ring_buffer[PIPE_SIZE];
 
-    while (true) {
+    while (1 == 1) {
         //Clearing buffer before reading into it to avoid leftovers
         memset(&ring_buffer[0], 0, sizeof(ring_buffer));
         read(0, ring_buffer, PIPE_SIZE);

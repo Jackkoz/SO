@@ -2,6 +2,9 @@
 #include <string.h>
 #include "so_lib.h"
 
+const char kill_message[42] = "(>'-')> <('-'<) ^(' - ')^ <('-'<) (>'-')>";
+const size_t  PIPE_SIZE = 65536;
+
 int isOperator(char c) {
     if (c == '*' || c == '+' || c == '-' || c == '/')
         return 1;
