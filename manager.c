@@ -1,10 +1,10 @@
-#include <unistd.h> //linux
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include "so_lib.h"
-#include <fcntl.h> //open
+#include <fcntl.h> 
 #include <sys/wait.h>
 
 int main(int argc, char* argv[]) {
@@ -47,6 +47,7 @@ int main(int argc, char* argv[]) {
     }
 
 	 for (process_count = 1; process_count <= max_processes; process_count++) {
+
         if (pipe (fd) == -1) {
             fprintf(stderr,"Could not create pipe %d: %s\n",
 	            	process_count, strerror(errno));
@@ -99,7 +100,7 @@ int main(int argc, char* argv[]) {
     }
 
 
-    int expressions = 0;
+    int expressions = 0; //the number of expressions to be counted, stored in the first line of input
     fgets(file_buffer, PIPE_SIZE, input);
     expressions = atoi(file_buffer);
 
@@ -108,25 +109,26 @@ int main(int argc, char* argv[]) {
     while (processed_expressions < expressions) {
 		
         fgets(file_buffer, PIPE_SIZE, input);
-		while (isExpression(file_buffer) > 0) {
+		while (isExpression(file_buffer) > 0) { //The expression is still in need of computing
             write(1, file_buffer, strlen(file_buffer));
             read(0, file_buffer, PIPE_SIZE);
 		}
 		processed_expressions++;
-        //zamień na write do pliku
         fprintf(output, "%d: %s", processed_expressions, file_buffer);
-
 	}
 	
+    //Starting the chain of messages leading to killing all children
     write(1, kill_message, strlen(kill_message) + 1);
 	process_count = 0;	
     read(0, file_buffer, PIPE_SIZE);
 	while (process_count < max_processes) {
-		wait(0);
+		wait(0); //ensuring each and every has used exit
 		process_count++;
 	}
 	
+    //Closing input and output files
 	fclose(input);
+    fclose(output);
 
 	return 0;
 	exit(0);
